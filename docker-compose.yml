@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  blockchain-backend:
+    build: 
+      context: ./backend-kotlin
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  evidence-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_REST_API_URL=http://localhost:8080/api/blockchain
+      - REACT_APP_IPFS_BASE_URL=https://ipfs.io/ipfs/
+    depends_on:
+      - blockchain-backend
+
+  ipfs-node:
+    image: ipfs/go-ipfs:latest
+    ports:
+      - "4001:4001"
+      - "8081:8080"
+      - "5001:5001"
