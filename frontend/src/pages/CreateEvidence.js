@@ -46,22 +46,11 @@ class CreateEvidence extends React.Component {
 					signer,
 					payload
 				);
-				const timer = setInterval(async () => {
-					const res = await Requests.getBatchStatus(data.link);
-					if (res.data[0].status === "COMMITTED") {
-						clearInterval(timer);
-						this.props.history.push("/evidencelist");
-					} else if (res.data[0].status === "INVALID") {
-						alert(
-							res.data[0].invalid_transactions[0].message
-						);
-						clearInterval(timer);
-					} else if (res.data[0].status === "UNKNOWN")
-						clearInterval(timer);
-				}, 5000);
+				this.props.history.push("/evidencelist");
 			} else this.setState({ isEmpty: true });
 		} else this.setState({ isEmpty: true });
 	}
+
 
 	render() {
 		return (
@@ -117,7 +106,6 @@ class CreateEvidence extends React.Component {
 				<br />
 				<Link
 					to="/evidencelist"
-					exact
 					className="f6 link dim ph3 pv2 mt3 dib white bg-green">
 					{" "}
 					List of Evidences{" "}

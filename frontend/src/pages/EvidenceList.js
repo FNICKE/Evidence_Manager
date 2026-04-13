@@ -24,7 +24,7 @@ const columns = [
 		accessor: "data.cid",
 		Cell: (props) => (
 			<a
-				class="f6 link dim br-pill ph3 pv2 mb2 dib white bg-dark-blue"
+				className="f6 link dim br-pill ph3 pv2 mb2 dib white bg-dark-blue"
 				href={`${process.env.REACT_APP_IPFS_BASE_URL}${props.value}`}>
 				Download
 			</a>
@@ -41,23 +41,18 @@ class EvidenceList extends React.Component {
 			list2: [],
 		};
 	}
-	async componentWillMount() {
+	async componentDidMount() {
 		try {
-			const response = await Requests.getChain();
-			const evidenceList = [];
-			response.forEach(block => {
-				block.transactions.forEach(tx => {
-					evidenceList.push({
-						address: block.hash, // Use block hash as address for now
-						data: tx.evidenceData || { title: "Untitled", timestamp: block.timestamp, cid: "" }
-					});
-				});
-			});
-			this.setState({ list: evidenceList });
+			const evidenceList = await Requests.getChain();
+			this.setState({ list: evidenceList.map(item => ({
+                address: item.transactions[0].sender,
+                data: item.transactions[0].evidenceData
+            })) });
 		} catch (e) {
 			console.error("Failed to fetch chain", e);
 		}
 	}
+
 
 	onMine = async () => {
 		try {
@@ -77,7 +72,7 @@ class EvidenceList extends React.Component {
 	render() {
 		return (
 			<div className="tc">
-				<nav class="db dt-l w-100 border-box pa3 ph5-l">
+				<nav className="db dt-l w-100 border-box pa3 ph5-l">
 					<a
 						className="db dtc-l v-mid mid-gray link dim w-100 w-25-l tc tl-l mb2 mb0-l"
 						href="/"
@@ -92,23 +87,19 @@ class EvidenceList extends React.Component {
 					</a>
 					<h1 className="tc">List of Evidences</h1>
 
-					<div class="dtc v-mid tr">
+					<div className="dtc v-mid tr">
 						<a
 							className="f6 link dim ph3 pv2 mh2 dib white bg-green"
 							href="/createevidence">
 							Create Evidence
 						</a>
 						<button
-							className="f6 link dim ph3 pv2 mh2 dib white bg-orange pointer"
-							onClick={this.onMine}>
-							Mine Pending Blocks
-						</button>
-						<button
 							className="f6 dim ph3 pv2 mh2 dib white bg-red ba b--black-025"
 							onClick={(e) => this.onLogout()}>
 							Logout
 						</button>
 					</div>
+
 				</nav>
 
 				<br />

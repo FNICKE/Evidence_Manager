@@ -1,39 +1,49 @@
-import axios from "axios";
+/**
+ * requests.js
+ * Connects frontend UI actions to blockchainService.js → backend/server.js
+ */
 
-const URL = process.env.REACT_APP_REST_API_URL || "http://localhost:8080/api/blockchain";
+import blockchainService from "./blockchainService";
 
-const submitPayloads = (keys, signer, payload) => {
-    // Simplified for our custom Kotlin blockchain
-    const transaction = {
-        sender: keys.publicKey,
-        recipient: "Blockchain",
-        amount: 0,
-        evidenceData: {
-            cid: payload.cid,
-            title: payload.name,
-            type: payload.type,
-            timestamp: Date.now()
-        }
-    };
-    return axios.post(`${URL}/transaction`, transaction).then(res => ({
-        link: "PENDING" // In our system, it's immediately accepted as pending
-    }));
+/**
+ * submitPayloads — called by CreateEvidence
+ * payload is the result of Payload.createEvidencePayload():
+ *   { action, timestamp, data: { cid, title, mimeType } }
+ */
+const submitPayloads = async (keys, signer, payload) => {
+    // Handle user registration (CREATE_PERSON) locally since backend only tracks Evidences
+    if (payload.action === "CREATE_PERSON") {
+        return { link: "user_registered_" + Math.random().toString(36).substring(7) };
+    }
+
+    // Unwrap nested payload structure from Payload.createEvidencePayload()
+    const evidenceData = payload.data || payload;
+    const txHash = await blockchainService.submitEvidence({
+        cid:    evidenceData.cid,
+        name:   evidenceData.title,
+        type:   evidenceData.mimeType || evidenceData.type || "document",
+        sender: keys.publicKey
+    });
+    return { link: txHash };
 };
 
-const getBatchStatus = (link) => {
-    // Simple mock for batch status since we are directly adding to pending
+/**
+ * getBatchStatus — legacy compatibility shim
+ * Returns COMMITTED immediately (no polling needed for direct submission).
+ */
+const getBatchStatus = () => {
     return Promise.resolve({
         data: [{ status: "COMMITTED" }]
     });
 };
 
-const getChain = () => axios.get(`${URL}/chain`).then(res => res.data);
-
-const mine = (minerAddress) => axios.post(`${URL}/mine?minerAddress=${minerAddress}`).then(res => res.data);
+/**
+ * getChain — fetches all evidences formatted as blockchain blocks
+ */
+const getChain = () => blockchainService.getChain();
 
 export default {
     submitPayloads,
     getBatchStatus,
-    getChain,
-    mine
+    getChain
 };

@@ -1,13 +1,19 @@
 {
-  "name": "blockchain-root",
+  "name": "evidence-management-system",
   "version": "1.0.0",
+  "description": "Blockchain Evidence Management System (Solidity + React + Node.js)",
   "scripts": {
-    "start": "cd frontend && npm start",
-    "backend": "cd backend-js && npm start",
-    "dev": "concurrently \"npm run start\" \"npm run backend\"",
-    "install-all": "npm install && cd frontend && npm install && cd ../backend-js && npm install"
+    "start": "npm run frontend",
+    "frontend": "cd frontend && npm start",
+    "backend": "$env:NODE_PATH='c:\\VS projects\\EvidenceManagement-frontend\\frontend\\node_modules'; node backend/server.js",
+    "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run backend\" \"npm run frontend\"",
+    "install-all": "cd frontend && npm install"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "hardhat": "^2.19.1"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^7.0.0"
   }
 }

@@ -19,7 +19,7 @@ class App extends React.Component {
 		this.loginHandle = this.loginHandle.bind(this);
 		this.logoutHandle = this.logoutHandle.bind(this);
 	}
-	componentWillMount() {
+	componentDidMount() {
 		if (Signing.checkKeys()) this.setState({ loggedIn: true });
 	}
 
